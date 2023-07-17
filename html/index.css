@@ -1,0 +1,4 @@
+/* 이미지를 선택, 드래그 못하게 막기 */
+a { display: block; display: flex; }
+img { pointer-events: none; user-select: none; -webkit-user-drag: none; }
+
