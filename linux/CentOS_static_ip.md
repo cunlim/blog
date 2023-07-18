@@ -1,4 +1,4 @@
-![alt](/img_blog/linux/centos_static_ip/20210112215110105.png)
+![alt](/img/linux/centos_static_ip/20210112215110105.png)
 
 ```bash
 ifconfig
