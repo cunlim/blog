@@ -100,13 +100,19 @@ class Tools {
 	}
 	// 글자 byte 계산 및 byte만큼 자르기 }
 
-	reqGet = function ( url ) {
-		fetch( url ).then((response) => response.json()).then((resp_data) => {
-			if ( !resp_data || resp_data.code != 200 ) { return; }
-		}).catch((error) => alert(error));
+
+	// reqGet( "/lim/lab/ajax_simulator.php", { market : "coupang" }, callback );
+	// callback = resp_data => {
+	// 	if ( !resp_data || resp_data.code != 200 ) { return; }
+	// }
+	reqGet = async function ( url_path, param_arr, callback ) {
+		let params_str = new URLSearchParams(param_arr).toString();
+		if ( params_str ) { params_str = `?${params_str}` }
+		await fetch( `${url_path}${params_str}` ).then(response => response.json()).then(callback).catch(error => console.log(error));
+		console.log('reqAsync');
 	}
 
-	reqPost = function ( url, post_data, callback ) {
+	reqPost = async function ( url_path, post_data, callback ) {
 		var post_conf = {
 			"method": "POST",
 			"headers": {
@@ -114,8 +120,8 @@ class Tools {
 			},
 			"body": JSON.stringify( post_data )
 		}
-		fetch( url, post_conf ).then((response) => response.json()).then(callback)
-		.catch((error) => alert(error));
+		await fetch( url_path, post_conf ).then(response => response.json()).then(callback).catch(error => console.log(error));
+		console.log('reqAsync');
 	}
 
 }
