@@ -12,3 +12,6 @@
 - php
 	- [fun_internal.md](/php/fun_internal.md)
 
+- mysql
+	- [basic.sql](/mysql/basic.sql)
+

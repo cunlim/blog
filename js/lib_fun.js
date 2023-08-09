@@ -117,8 +117,10 @@ class Tools {
 			"method": "POST",
 			"headers": {
 				"content-type": "application/json"
+				// "content-type": "application/x-www-form-urlencoded"
 			},
 			"body": JSON.stringify( post_data )
+			// "body": new URLSearchParams( post_data ).toString()
 		}
 		await fetch( url_path, post_conf ).then(response => response.json()).then(callback).catch(error => console.log(error));
 		console.log('reqAsync');
