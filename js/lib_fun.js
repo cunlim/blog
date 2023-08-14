@@ -163,6 +163,80 @@ class Tools {
 		console.log('reqAsync');
 	}
 
+	exampleLoop = function () {
+		let arr = [10, 11, 12, 13, 14, 15];
+		arr.__proto__[6] = 16;
+		let obj = { "a" : 10, "b": 11, "c": 12, "d": 13, "e": 14, "f": 15 };
+		obj.__proto__.g = 16;
+
+		console.log("* for normal :");
+		for (let k1 = 0; k1 < arr.length; k1++) {
+			const v1 = arr[k1];
+			if ( k1 === 2 ) { continue; }
+			// if ( k1 === 4 ) { break; }
+			console.log(k1, v1);
+		}
+
+		console.log("* for each :");
+		arr.forEach((v1, k1) => {
+			if ( k1 === 2 ) { return; }	// continue
+			console.log(k1, v1);
+		});
+
+		console.log("* for in arr :");
+		for (const k1 in arr) {
+			// if (!Object.hasOwnProperty.call(arr, k1)) { continue; }
+			const v1 = arr[k1];
+			if ( k1 === "2" ) { continue; }
+			// if ( k1 === "4" ) { break; }
+			console.log(k1, v1);
+		}
+		console.log("* for in obj :");
+		for (const k1 in obj) {
+			// if (!Object.hasOwnProperty.call(obj, k1)) { continue; }
+			const v1 = obj[k1];
+			if ( k1 === "c" ) { continue; }
+			// if ( k1 === "e" ) { break; }
+			console.log(k1, v1);
+		}
+
+		console.log("* for of arr :");
+		for (const [k1, v1] of Object.entries(arr)) {
+			if ( k1 === "2" ) { continue; }
+			// if ( k1 === "4" ) { break; }
+			console.log(k1, v1);
+		}
+		console.log("* for of obj :");
+		for (const [k1, v1] of Object.entries(obj)) {
+			if ( k1 === "c" ) { continue; }
+			// if ( k1 === "e" ) { break; }
+			console.log(k1, v1);
+		}
+
+		if ( $.each ) {
+			console.log("* jquery each dom");
+			$("span").each((k1, el) => {
+				if ( k1 === 2 ) { return true; }	// continue
+				if ( k1 === 4 ) { return false; }	// break
+				console.log(k1, el);
+			})
+			console.log("* jquery each arr");
+			$.each(arr, (k1, v1) => {
+				if (!Object.hasOwnProperty.call(arr, k1)) { return; }
+				if ( k1 === 2 ) { return true; }	// continue
+				// if ( k1 === 4 ) { return false; }	// break
+				console.log(k1, v1);
+			})
+			console.log("* jquery each obj");
+			$.each(obj, (k1, v1) => {
+				if (!Object.hasOwnProperty.call(obj, k1)) { return; }
+				if ( k1 === "c" ) { return true; }	// continue
+				// if ( k1 === "e" ) { return false; }	// break
+				console.log(k1, v1);
+			})
+		}
+	}
+
 }
 let tools = new Tools("John");
 // tools.debug_flag = true;
