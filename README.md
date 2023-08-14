@@ -4,6 +4,7 @@
 	- [index.css](/html/index.css)
 
 - linux
+	- [linux bash.md](/linux/bash.md)
 	- [CentOS_static_ip.md](/linux/CentOS_static_ip.md)
 
 - js
