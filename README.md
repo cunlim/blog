@@ -15,5 +15,5 @@
 	- [lib_fun.php](/php/lib_fun.php)
 
 - mysql
-	- [basic.sql](/mysql/basic.sql)
+	- [example.sql](/mysql/example.sql)
 

@@ -104,8 +104,8 @@ docker pull centos:latest
 
 netstat -tnlp
 
-docker run -itd --name "nginx" -p 80:80 -v /home/docker/nginx/html:/usr/share/nginx/html -v /home/docker/nginx/nginx.conf:/etc/nginx/nginx.conf nginx:latest /bin/bash
-docker run -itd --name "server_01" -p 80:40001 centos:latest /bin/bash
+docker run -itd --name "nginx" -p 80:80 -v /home/docker/nginx/html:/usr/share/nginx/html -v /home/docker/nginx/conf.d:/etc/nginx/conf.d nginx:latest /bin/bash
+docker run -itd --name "server_01" -p 40001:80 centos:latest /bin/bash
 
 
 
