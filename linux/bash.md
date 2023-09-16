@@ -91,13 +91,25 @@ yum info httpd
 (copy .ssh/authorized_keys)
 yum update
 yum install http://opensource.wandisco.com/centos/7/git/x86_64/wandisco-git-release-7-1.noarch.rpm
-yum install git
 yum install vim
+yum install git
+git config --global user.name "cunlim"
+git config --global user.email "zangcunlim@gmail.com"
+cd ~/.ssh
+ssh-keygen -t ed25519 -C "zangcunlim@gmail.com"
+cat id_ed25519.pub
+(github config add ssh)
+
 (install docker)
 systemctl status docker
 systemctl enable docker
 systemctl start docker
-git clone https://github.com/gnuboard/gnuboard5.git
+
+cd web_src_dir
+git clone git@github.com:xxx/xxx.git
+...
+
+
 
 docker pull nginx
 docker pull centos:latest
