@@ -145,4 +145,15 @@ route add -host 1.23.456.789 reject
 
 
 
+# hard disk mount
+fdisk -l | grep /dev
+df -h
+mount /dev/sdc3 /hdd3
+umount /hdd3
+umount -f -l /hdd3
+vim /etc/fstab
+
+
+
+
 ```
