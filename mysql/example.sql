@@ -1,3 +1,10 @@
+-- create user, db {
+CREATE USER '{username}'@'%' IDENTIFIED WITH mysql_native_password BY '{password}';
+CREATE DATABASE {db_name};
+GRANT ALL PRIVILEGES ON {db_name}.{table_name} TO {username}@'%';
+-- create user, db }
+
+
 -- SELECT {
 SELECT `field1`, `field2` FROM `db`.`table`;
 SELECT * FROM `db`.`table` WHERE `id` = 2;
