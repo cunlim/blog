@@ -1,7 +1,7 @@
 -- create user, db {
 CREATE USER '{username}'@'%' IDENTIFIED BY '{password}';
 CREATE DATABASE {db_name};
-GRANT ALL PRIVILEGES ON {db_name}.{table_name} TO {username}@'%';
+GRANT ALL PRIVILEGES ON {db_name}.{table_name} TO '{username}'@'%';
 -- create user, db }
 
 
@@ -32,4 +32,7 @@ UPDATE      `db`.`table` SET `field1` = 'value1', `field2` = 'value2' WHERE `id`
 -- DELETE {
 DELETE FROM `db`.`table` WHERE `id` = 4;
 -- DELETE }
+
+
+RENAME TABLE `old_table` TO `new_table`;
 
