@@ -117,7 +117,11 @@ docker pull centos:latest
 netstat -tnlp
 
 docker run -itd --name "nginx" -p 80:80 -v /home/docker/nginx/html:/usr/share/nginx/html -v /home/docker/nginx/conf.d:/etc/nginx/conf.d nginx:latest /bin/bash
-docker run -itd --name "server_01" -p 40001:80 centos:latest /bin/bash
+
+docker run -itd --restart=always --privileged=true --name baota_01 -p 10376:10376 -p 40223:5123 -v /home/cjmax/centos/www:/www centos:latest /bin/bash
+sudo sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-*
+sudo sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-*
+yum install wget
 
 
 
