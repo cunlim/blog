@@ -2,6 +2,7 @@
 CREATE USER '{username}'@'%' IDENTIFIED BY '{password}';
 CREATE DATABASE {db_name};
 GRANT ALL PRIVILEGES ON {db_name}.{table_name} TO '{username}'@'%';
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, REFERENCES, INDEX, ALTER ON {db_name}.{table_name} TO '{username}'@'%';
 DROP DATABASE {db_name};
 DROP USER '{username}'@'%';
 -- create user, db }
