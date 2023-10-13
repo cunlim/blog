@@ -37,5 +37,5 @@ DELETE FROM `db`.`table` WHERE `id` = 4;
 -- DELETE }
 
 
-RENAME TABLE `old_table` TO `new_table`;
+RENAME TABLE `db`.`old_table` TO `db`.`new_table`;
 

@@ -10,6 +10,9 @@ header('Content-Type: application/json; charset=utf-8');
 json_decode( $ret, true );
 json_encode( $ret, JSON_UNESCAPED_UNICODE );
 addslashes( json_encode( $ret, JSON_UNESCAPED_UNICODE ) );
+// json_decode( $combs, true ) 						"" => null, "null" => null, "[]" => [], "NO" => null
+// json_encode( $combs, JSON_UNESCAPED_UNICODE )	"" => "\"\"", null => "null", array() => "[]", false => "false", "false" => "\"false\"", "abc" => "\"abc\""
+
 
 # CORS
 header('Access-Control-Allow-Origin:*');
