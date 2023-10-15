@@ -1,5 +1,6 @@
 -- create user, db {
 CREATE USER '{username}'@'%' IDENTIFIED BY '{password}';
+CREATE USER '{username}'@'%' IDENTIFIED WITH mysql_native_password BY '{password}';
 CREATE DATABASE {db_name};
 GRANT ALL PRIVILEGES ON {db_name}.{table_name} TO '{username}'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, REFERENCES, INDEX, ALTER ON {db_name}.{table_name} TO '{username}'@'%';

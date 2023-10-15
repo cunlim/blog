@@ -140,6 +140,11 @@ docker rmi $(docker images -q)
 docker image rm -f $(docker image ls -q)
 
 
+# php config : /usr/local/etc/php-fpm.d/www.conf
+# security.limit_extensions = .php .php3 .php4 .php5 .html .htm;
+# nbinx config :
+# location ~ \.(php|html|htm)$ {
+
 
 
 # DOS 공격 대응
