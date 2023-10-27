@@ -101,6 +101,19 @@ class Tools {
 	// 글자 byte 계산 및 byte만큼 자르기 }
 
 
+	numberFormat = function ( number, Currency ) {
+		let result;
+		if ( Currency === "CNY" ) {
+			result = new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' });
+		} else if ( Currency === "KRW" ) {
+			result = new Intl.NumberFormat("ko-KR", { style: "currency", currency: "KRW" });
+		} else {
+			result = new Intl.NumberFormat();
+		}
+		result = result.format( new Number(number) );
+		return result === "NaN" ? "" : result;
+	}
+
 	setSearchDate = function ( type ) {
 		const aday		= 1000 * 60 * 60 * 24;
 		const now		= new Date();	// new Date() - aday * 2
@@ -137,30 +150,105 @@ class Tools {
 		vue_data.param['to_date'] = `${to.y}-${to.m}-${to.d}`;
 	}
 
+	timestampToDateStr = function ( timestamp ) {
+		var timeobj = new Date(timestamp);
 
-	// reqGet( "/lim/lab/ajax_simulator.php", { market : "coupang" }, callback );
-	// callback = resp_data => {
-	// 	if ( !resp_data || resp_data.code != 200 ) { return; }
-	// }
-	reqGet = async function ( url_path, param_obj, callback ) {
-		let params_str = new URLSearchParams(param_obj).toString();
-		if ( params_str ) { params_str = `?${params_str}` }
-		await fetch( `${url_path}${params_str}` ).then(response => response.json()).then(callback).catch(error => console.log(error));
-		console.log('reqAsync');
+		let month = timeobj.getMonth() + 1;
+		let day = timeobj.getDate();
+		let hour = timeobj.getHours();
+		let minute = timeobj.getMinutes();
+		let second = timeobj.getSeconds();
+
+		month = month >= 10 ? month : '0' + month;
+		day = day >= 10 ? day : '0' + day;
+		hour = hour >= 10 ? hour : '0' + hour;
+		minute = minute >= 10 ? minute : '0' + minute;
+		second = second >= 10 ? second : '0' + second;
+
+		return timeobj.getFullYear() + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
 	}
 
-	reqPost = async function ( url_path, param_obj, callback ) {
-		const post_conf = {
-			"method": "POST",
-			"headers": {
-				"content-type": "application/json"
-				// "content-type": "application/x-www-form-urlencoded"
-			},
-			"body": JSON.stringify( param_obj )
-			// "body": new URLSearchParams( param_obj ).toString()
+	secondToTimeStr = function ( total_time ) {
+		total_time /= 1000;
+		var days = Math.floor(total_time/86400); 
+		var time = total_time - (days*86400); 
+		var hours = Math.floor(time/3600); 
+		time = time - (hours*3600); 
+		var min = Math.floor(time/60); 
+		var sec = time - (min*60); 
+		
+		var str = '';
+		if(days==0&&hours==0&&min==0) {
+			str = `${sec}초`;
+		} else if (days==0&&hours==0) {
+			str = `${min}분 ${sec}초`;
+		} else if (days==0) {
+			str = `${hours}시간 ${min}분 ${sec}초`;
+		} else {
+			str = `${days}일 ${hours}시간 ${min}분 ${sec}초`;
 		}
-		await fetch( url_path, post_conf ).then(response => response.json()).then(callback).catch(error => console.log(error));
-		console.log('reqAsync');
+		return str;
+	}
+
+	/**
+	 * var mb_id_js = "<?=$mb_id;?>";
+	 * tools.isUserGroupJs();
+	 * if ( tools.isUserGroupJs("master") ) {}
+	 */
+	isUserGroupJs(line) {
+        if ( !window.mb_id_js ) { return false; }
+		if ( line === "master" ) {
+			return false
+				|| mb_id_js === "doc2327"
+				|| false;
+		}
+		if ( line === "admin" ) {
+			return false
+				|| mb_id_js === "doc2327"
+				|| mb_id_js === "harlemboy"
+				|| false;
+		}
+		if ( line === "opt_edit" ) {
+			return false
+				|| mb_id_js === "doc2327"
+				|| false;
+		}
+		return false;
+	}
+
+
+	// await this.reqGet( "/lim/lab/ajax_simulator.php", { market : "coupang" } ).then(response => response.json()).then(resp_data => {
+	// 	if ( resp_data?.status !== 1 ) { return; }
+	// })
+	reqGet = function ( url_path, param_obj ) {
+		let params_str = new URLSearchParams(param_obj).toString();
+		if ( params_str ) { params_str = `?${params_str}` }
+		return fetch( `${url_path}${params_str}` ).catch(error => console.log(error));
+	}
+
+	// await this.reqPost( "/lim/lab/ajax_simulator.php", { market : "coupang" } ).then(response => response.json()).then(resp_data => {
+	// 	if ( resp_data?.status !== 1 ) { return; }
+	// })
+	reqPost = function ( url_path, param_obj, mode = "json" ) {
+		const post_conf = {"method": "POST"};
+		if ( mode === "json" ) {
+			post_conf.headers = {"content-type": "application/json"};
+			post_conf.body = JSON.stringify( param_obj );
+		} else {
+			post_conf.headers = {"content-type": "application/x-www-form-urlencoded"};
+			post_conf.body = new URLSearchParams( param_obj ).toString();
+		}
+		return fetch( url_path, post_conf ).catch(error => console.log(error));
+	}
+
+	// 로그인 페이지로 이동, 로그인 즉시 전 페이지로 이동
+	login = function () {
+		location.href = '/main/login.php?url=' + encodeURIComponent( new URL(location).pathname + new URL(location).search );
+	}
+
+	loadingBtn = function (el_icon) {
+		$(el_icon).html(/*html*/`<img id="loading-image" src="/img/gif-load.gif" alt="Loading..." style="height:15px" />`);
+		$("input, button").attr("disabled", true);
 	}
 
 	exampleLoop = function () {
