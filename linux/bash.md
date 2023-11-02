@@ -155,9 +155,11 @@ route add -host 1.23.456.789 reject
 
 
 # hard disk mount
+lsblk -d -o name,rota (0ssd,1hdd)
 fdisk -l | grep /dev
 df -h
 mount /dev/sdc3 /hdd3
+mount UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx /hdd2
 umount /hdd3
 umount -f -l /hdd3
 vim /etc/fstab

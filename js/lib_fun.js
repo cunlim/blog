@@ -217,19 +217,19 @@ class Tools {
 	}
 
 
-	// await this.reqGet( "/lim/lab/ajax_simulator.php", { market : "coupang" } ).then(response => response.json()).then(resp_data => {
+	// await this.fetchGet( "/lim/lab/ajax_simulator.php", { market : "coupang" } ).then(response => response.json()).then(resp_data => {
 	// 	if ( resp_data?.status !== 1 ) { return; }
 	// })
-	reqGet = function ( url_path, param_obj ) {
+	fetchGet = function ( url_path, param_obj ) {
 		let params_str = new URLSearchParams(param_obj).toString();
 		if ( params_str ) { params_str = `?${params_str}` }
 		return fetch( `${url_path}${params_str}` ).catch(error => console.log(error));
 	}
 
-	// await this.reqPost( "/lim/lab/ajax_simulator.php", { market : "coupang" } ).then(response => response.json()).then(resp_data => {
+	// await this.fetchPost( "/lim/lab/ajax_simulator.php", { market : "coupang" } ).then(response => response.json()).then(resp_data => {
 	// 	if ( resp_data?.status !== 1 ) { return; }
 	// })
-	reqPost = function ( url_path, param_obj, mode = "json" ) {
+	fetchPost = function ( url_path, param_obj, mode = "json" ) {
 		const post_conf = {"method": "POST"};
 		if ( mode === "json" ) {
 			post_conf.headers = {"content-type": "application/json"};
