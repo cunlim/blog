@@ -4,7 +4,9 @@ CREATE USER '{username}'@'%' IDENTIFIED WITH mysql_native_password BY '{password
 CREATE DATABASE {db_name};
 GRANT ALL PRIVILEGES ON {db_name}.{table_name} TO '{username}'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, REFERENCES, INDEX, ALTER ON {db_name}.{table_name} TO '{username}'@'%';
+
 DROP DATABASE {db_name};
+REVOKE ALL PRIVILEGES ON {db_name}.{table_name} FROM '{username}'@'%';
 DROP USER '{username}'@'%';
 -- create user, db }
 
@@ -39,4 +41,6 @@ DELETE FROM db.table WHERE id = 4;
 
 
 RENAME TABLE db.old_table TO db.new_table;
+TRUNCATE db.table;
+
 
