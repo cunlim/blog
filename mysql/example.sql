@@ -26,10 +26,7 @@ SELECT status, count(*) as cnt FROM db.table GROUP BY status;
 
 -- INSERT, UPDATE {
 INSERT INTO db.table VALUES ('value1', 'value2');
-
-INSERT INTO db.table (field1, field2) VALUES ('value1', 'value2');
-UPDATE      db.table (field1, field2) VALUES ('value1', 'value2') WHERE id = 3;
-
+INSERT INTO db.table (field1, field2) VALUES ('value11', 'value12'), ('value21', 'value22');
 INSERT INTO db.table SET field1 = 'value1', field2 = 'value2';
 UPDATE      db.table SET field1 = 'value1', field2 = 'value2' WHERE id = 3;
 -- INSERT, UPDATE }
