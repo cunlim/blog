@@ -114,6 +114,18 @@ class Tools {
 		return result === "NaN" ? "" : result;
 	}
 
+	getExcelAtoZIndex = function ( number ) {
+		let base26_arr = Array.from( parseInt(number).toString(26) );
+
+		for (let [k1, v1] of Object.entries( base26_arr )) {
+			v1 = parseInt( v1, 26 ) + 10;
+			if ( k1 === "0" && base26_arr.length > 1 ) { v1 --; }
+			base26_arr[k1] = parseInt(v1).toString(36).toUpperCase();
+		}
+
+		return base26_arr.join("");
+	}
+
 	setSearchDate = function ( type ) {
 		const aday		= 1000 * 60 * 60 * 24;
 		const now		= new Date();	// new Date() - aday * 2
