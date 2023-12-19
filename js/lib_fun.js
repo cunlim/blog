@@ -133,7 +133,7 @@ class Tools {
 		const map_week	= [ 6, 0, 1, 2, 3, 4, 5 ];
 		const week_i	= map_week[ now.getDay() ];
 		const map = {
-			"init"			: [ now														, now ],
+			"init"			: [ new Date( now.getFullYear(), now.getMonth() - 1 , now.getDate() + 1 )	, now ],
 			"this_date"		: [ tod														, now ],
 			"last_date"		: [ new Date( tod - aday * ( 1			) )					, new Date( tod - 1000 ) ],
 			"this_week"		: [ new Date( tod - aday * ( week_i		) )					, now ],
@@ -154,6 +154,7 @@ class Tools {
 		};
 		if ( type == "init" ) {
 			if ( !vue_data.param['fr_date'] && !vue_data.param['to_date'] ) {
+				// vue_data.param['fr_date'] = `${fr.y}-${fr.m}-${fr.d}`;
 				vue_data.param['to_date'] = `${to.y}-${to.m}-${to.d}`;
 			}
 			return;
@@ -356,26 +357,34 @@ const searcher = {
 }
 
 Vue.createApp({
+	components: {
+		vuedraggable,
+		comp_pg: vue_component.pg,
+	},
 	data() {
 		return {
-			vue_data : {
-				items : {},
-				param : { page: 1 }
-			},
-			searcher : searcher,
+			vue_data		: vue_data,
+			vue_method		: vue_method,
 
-			tools : tools,
+			tools			: tools,
+			ezy_q			: ezy_q,
+			dpixel_001		: dpixel_001,
 			outfn : {
 				number_format : number_format
 			}
 		}
 	},
 	mounted() {
-		vue_data = this.vue_data;
-		searcher.open();
+		vue_data		= this.vue_data;
+		vue_method		= this.vue_method;
+		vue_data.$refs	= this.$refs;
+
+		vue_method.open();
+		vue_method.modalInit();
 	},
-	methods: {}
-}).mount("#vue");
+	methods: {},
+    computed: {}
+}).mount("#vue-someid");
 
 
 
