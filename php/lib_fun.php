@@ -48,55 +48,6 @@ class GTools {
 		return $number;
 	}
 
-	// $g_tools->isUserGroup()
-	// if ( $g_tools->isUserGroup() ) { $debug_flag = true; }
-	public function isUserGroupPhp( $line ) {
-		$result = 0;
-		if ( $line === "master" ) {
-			$result =	$_SESSION['m_id'] == "mb_0";
-		}
-		if ( $line === "admin" ) {
-			$result =	$_SESSION['m_id'] == "mb_0"
-					||	$_SESSION['m_id'] == "mb_1";
-		}
-		if ( $line === "goods_detail" ) {
-			$result =	false
-					||	$_SESSION['m_id'] == "mb_0"
-					||	$_SESSION['m_id'] == "mb_2"
-					||	$_SESSION['m_id'] == "mb_4"
-					||	false;
-		}
-		return (int)$result;
-	}
-
-	// $g_tools->printJsonPre( $json );
-	public function printJsonPre( $json ) {
-		$arr = json_decode($json, true);
-		$this->printArrPre( $arr );
-	}
-
-	// $g_tools->printArrPre( $arr );
-	public function printArrPre( $arr ) {
-		echo "<pre>"; print_r($arr); echo "</pre>";
-	}
-
-	// $g_tools->hiddenPrint( $arr );
-	// $g_tools->hiddenPrint( $arr, [ mark_str => "", change_line => false ] );
-	// echo '<span style="display:none;" cunlim>'.'</span>';
-	public function hiddenPrint( $arr, $configs = [] ) {
-		$configs['mark_str']    = $configs['mark_str']      ?:  "cunlim";
-		$configs['change_line'] = $configs['change_line']   ?:  false;
-		if ( $configs['change_line'] ) {
-			echo '<span style="display:none;" '.$configs['mark_str'].'>'.PHP_EOL;
-			print_r( $arr );
-			echo PHP_EOL.'</span>'.PHP_EOL;
-		} else {
-			echo '<span style="display:none;" '.$configs['mark_str'].'>';
-			print_r( $arr );
-			echo '</span>'.PHP_EOL;
-		}
-	}
-
 	public function secondToTimeStr( $total_time ) {
 		$days = floor($total_time/86400); 
 		$time = $total_time - ($days*86400); 
@@ -122,24 +73,89 @@ class GTools {
 	public function getSubstring($str, $length)
 	{
 		$str = trim($str);
-	 
+
 		if (strlen($str) <= $length)
 			return $str;
-	 
+
 		$strArr = preg_split("//u", $str, -1, PREG_SPLIT_NO_EMPTY);
 		$cutStr = '';
-	 
+
 		foreach ($strArr as $s) {
 			$len1 = strlen($s);
 			$len2 = strlen($cutStr) + $len1;
-	 
+
 			if ($len2 > $length)
 				break;
 			else
 				$cutStr .= $s;
 		}
-	 
+
 		return $cutStr;
+	}
+
+	// $g_tools->isUserGroup()
+	// if ( $g_tools->isUserGroup() ) { $debug_flag = true; }
+	public function isUserGroupPhp( $line ) {
+		$result = 0;
+		if ( $line === "master" ) {
+			$result =	$_SESSION['m_id'] == "mb_0";
+		}
+		if ( $line === "admin" ) {
+			$result =	$_SESSION['m_id'] == "mb_0"
+					||	$_SESSION['m_id'] == "mb_1";
+		}
+		if ( $line === "goods_detail" ) {
+			$result =	false
+					||	$_SESSION['m_id'] == "mb_0"
+					||	$_SESSION['m_id'] == "mb_2"
+					||	$_SESSION['m_id'] == "mb_4"
+					||	false;
+		}
+		return (int)$result;
+	}
+
+	// $g_tools->notLoginedExit();
+	public function notLoginedExit() {
+		if ( !$_SESSION['m_id'] ) { echo '{"status":"please login","msg":"로그인후 이용 가능 합니다."}'; exit; }
+	}
+
+	// $g_tools->notAdminExit();
+	public function notAdminExit() {
+		if ( !$_SESSION['m_id'] ) { echo '{"status":"please login as admin","msg":"관리자로 로그인 하십시오."}'; exit; }
+		if ( !$this->isUserGroupPhp( "master" ) ) { echo '{"status":"no authority","msg":"열람 권한이 없습니다."}'; exit; }
+	}
+
+	// if ( $g_tools->isTimeTo("2023-11-01 18:03:00") <= 0 ) { echo "ok"; } else { echo "yet"; }
+	public function isTimeTo( $time ) {
+		return strtotime( $time ) - strtotime( date('Y-m-d H:i:s') );
+	}
+
+	// $g_tools->printJsonPre( $json );
+	public function printJsonPre( $json ) {
+		$arr = json_decode($json, true);
+		$this->printArrPre( $arr );
+	}
+
+	// $g_tools->printArrPre( $arr );
+	public function printArrPre( $arr ) {
+		echo "<pre>".PHP_EOL; print_r($arr); echo PHP_EOL."</pre>";
+	}
+
+	// $g_tools->hiddenPrint( $arr );
+	// $g_tools->hiddenPrint( $arr, [ mark_str => "", change_line => false ] );
+	// echo '<span style="display:none;" cunlim>'.'</span>';
+	public function hiddenPrint( $arr, $configs = [] ) {
+		$configs['mark_str']    = $configs['mark_str']      ?:  "cunlim";
+		$configs['change_line'] = $configs['change_line']   ?:  false;
+		if ( $configs['change_line'] ) {
+			echo '<span style="display:none;" '.$configs['mark_str'].'>'.PHP_EOL;
+			print_r( $arr );
+			echo PHP_EOL.'</span>'.PHP_EOL;
+		} else {
+			echo '<span style="display:none;" '.$configs['mark_str'].'>';
+			print_r( $arr );
+			echo '</span>'.PHP_EOL;
+		}
 	}
 
 
@@ -162,27 +178,27 @@ class GTools {
 		}
 	}
 
-	public function getPath( $folder, $mb_id, $group, $img_position ) {
-		if ( empty( $folder ) || empty( $mb_id ) || empty( $group ) || empty( $img_position ) ) { return; }
+	public function getPath( $folder, $mb_id, $group="", $img_position="" ) {
+		if ( empty( $folder ) || empty( $mb_id ) ) { return; }
 
 		$protocol		= 'http';
 		$domain			= "a.b.com";
 		$path_mb_id		= "data/{$folder}/4/{$mb_id}";
-		$path_group	= "{$path_mb_id}/{$group}";
-		$relative		= "{$path_group}/{$img_position}";
-		$doc_root		= $_SERVER['DOCUMENT_ROOT'];
+		$path_group		= !empty($group)		? "{$path_mb_id}/{$group}"			: $path_mb_id;
+		$relative		= !empty($img_position)	? "{$path_group}/{$img_position}"	: $path_group;
 
-		$absolute		= "{$doc_root}/{$path_mb_id}";		@mkdir($absolute, 0755); @chmod($absolute, 0755);
-		$absolute		= "{$doc_root}/{$path_group}";		@mkdir($absolute, 0755); @chmod($absolute, 0755);
-		$absolute		= "{$doc_root}/{$relative}";		@mkdir($absolute, 0755); @chmod($absolute, 0755);
+		$absolute		= "{$_SERVER['DOCUMENT_ROOT']}/{$relative}"; # /home/wn_scrap/www/data/occ_img_v3/4/doc2327/FN20231004141359_9060/goods_detail
+		@mkdir($absolute, 0755, true);
 
 		return [ "protocol" => $protocol, "domain" => $domain, "relative" => $relative, "absolute" => $absolute ];
 	}
 
 	public function getImgName( $absolute, $mb_id, $goods_or_id, $fl_no ) {
-		if ( empty( $absolute ) || empty( $mb_id ) || empty( $goods_or_id) || empty( $fl_no ) ) { return; }
+		if ( empty( $absolute ) || empty( $mb_id ) ) { return; }
 
-		$img_name = "{$mb_id}_{$goods_or_id}_{$fl_no}";
+		$img_name = $mb_id;
+		if ( !empty($goods_or_id) )	{ $img_name = "{$img_name}_{$goods_or_id}"; }
+		if ( !empty($fl_no) )		{ $img_name = "{$img_name}_{$fl_no}"; }
 
 		# add _num {
 		$index_arr = $this->getIndexContinue( $absolute, $img_name );
@@ -248,11 +264,11 @@ class GTools {
 
 		$is_img = true;
 
-		if($ext != "jpg" && $ext != "jpeg" && $ext != "png" && $ext != "gif" && $ext != "alicdn" && $ext != "domain" ) {
-			$is_img = false;
-		}
 		if($ext == "alicdn" || $ext == "domain") {
 			$ext = "jpg";
+		}
+		if($ext != "jpg" && $ext != "jpeg" && $ext != "png" && $ext != "gif" ) {
+			$is_img = false;
 		}
 
 		return [ "ext" => $ext, "img_str" => $img_str, "is_img" => $is_img ];
