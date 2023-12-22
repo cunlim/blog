@@ -75,6 +75,8 @@ ALTER TABLE db.table DROP column6;
 
 
 -- index {
+CREATE UNIQUE INDEX index_name USING BTREE ON db.table (column1);
+CREATE INDEX index_name USING BTREE ON db.table (column1);
 ALTER TABLE db.table ADD INDEX index_name (column1, column2) USING BTREE;
 ALTER TABLE db.table ADD INDEX index_name (column1);
 ALTER TABLE db.table DROP INDEX index_name;
