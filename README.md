@@ -5,7 +5,7 @@
 
 - linux
 	- [linux bash.md](/linux/bash.md)
-	- [CentOS_static_ip.md](/linux/CentOS_static_ip.md)
+	- [CentOS_static_ip.md](/linux/CentOS_static_ip/CentOS_static_ip.md)
 
 - js
 	- [lib_fun.js](/js/lib_fun.js)

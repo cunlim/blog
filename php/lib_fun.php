@@ -178,74 +178,216 @@ class GTools {
 		}
 	}
 
-	public function getPath( $folder, $mb_id, $group="", $img_position="" ) {
-		if ( empty( $folder ) || empty( $mb_id ) ) { return; }
+	// $file :
+	//   "name": "img_name_01.gif",
+	//   "type": "image/gif",
+	//   "tmp_name": "/tmp/php2XixzP",
+	//   "error": 0,
+	//   "size": 112012
+	// $file_rslt = $g_tools->fileUploader( $_FILES['file'], ["img_v5", "4", $mb_id, "company"], [$mb_id], "img1" );
+	// $file_rslt = $g_tools->fileUploader( $_FILES['upload'], ["img_v3", "4", $mb_id, $group, "goods_detail"], [$mb_id, $goods_or_id, $fl_no] );
+	public function fileUploader( $file, $dir_arr, $name_arr, $file_type = "img1" ) {
+		if ( !$file['name'] ) { return; }
 
-		$protocol		= 'http';
-		$domain			= "a.b.com";
-		$path_mb_id		= "data/{$folder}/4/{$mb_id}";
-		$path_group		= !empty($group)		? "{$path_mb_id}/{$group}"			: $path_mb_id;
-		$relative		= !empty($img_position)	? "{$path_group}/{$img_position}"	: $path_group;
+		$ext = pathinfo( $file['name'], PATHINFO_EXTENSION );
 
-		$absolute		= "{$_SERVER['DOCUMENT_ROOT']}/{$relative}"; # /home/wn_scrap/www/data/occ_img_v3/4/doc2327/FN20231004141359_9060/goods_detail
-		@mkdir($absolute, 0755, true);
+		// exit( '{"status":"has invalid img ext","msg":"JPG, JPEG, PNG, GIF만 가능합니다."}' );
+		if (	$file_type === "img1"
+			&&	strcasecmp($ext, "jpg")		!== 0
+			&&	strcasecmp($ext, "jpeg")	!== 0
+			&&	strcasecmp($ext, "png")		!== 0
+			&&	strcasecmp($ext, "gif")		!== 0
+		) { return; }
 
-		return [ "protocol" => $protocol, "domain" => $domain, "relative" => $relative, "absolute" => $absolute ];
+		$paths			= $this->getPath( $dir_arr );
+		$file_new_arr	= $this->getFileName( $name_arr, $paths['absolute'] );
+		$file_new		= "{$file_new_arr['file_new']}.{$ext}";
+
+		$file_url		= "{$paths['protocol']}://{$paths['domain']}{$paths['relative']}/{$file_new}";
+		$file_target	= "{$paths['absolute']}/{$file_new}";
+
+		$move_result	= move_uploaded_file( $file["tmp_name"], $file_target );
+		// if ( !$file_rslt['move_result'] ) {}
+
+		return [
+			// "file_new"		=> $file_new,
+			"file_url"			=> $file_url,
+			"move_result"		=> $move_result,
+			// "file_target"	=> $file_target,
+			"debug" => [
+				"file"			=> $file,
+				"ext"			=> $ext,
+				"paths"			=> $paths,
+				"file_new_arr"	=> $file_new_arr,
+			]
+		];
 	}
 
-	public function getImgName( $absolute, $mb_id, $goods_or_id, $fl_no ) {
-		if ( empty( $absolute ) || empty( $mb_id ) ) { return; }
+	/**
+	 * $g_tools->getPath();
+	 *   relative: "/data",
+	 *   absolute: "/home/proj/www/data"
+	 * 
+	 * $g_tools->getPath(["img_v3", "4", "mb_id_01"]);
+	 * $g_tools->getPath(["img_v3/4", "mb_id_01"]);
+	 *   relative: "/data/img_v3/4/mb_id_01",
+	 *   absolute: "/home/proj/www/data/img_v3/4/mb_id_01"
+	 */
+	public function getPath( $dir_arr = [] ) {
+		if ( !$dir_arr || !is_array( $dir_arr ) ) { $dir_arr = []; }
 
-		$img_name = $mb_id;
-		if ( !empty($goods_or_id) )	{ $img_name = "{$img_name}_{$goods_or_id}"; }
-		if ( !empty($fl_no) )		{ $img_name = "{$img_name}_{$fl_no}"; }
+		foreach ( $dir_arr as $k1 => $dir ) {
+			if ( !$dir ) { unset( $dir_arr[$k1] ); }
+		}
 
+		array_unshift( $dir_arr, "/data" );
+		$relative = implode('/', $dir_arr);
+
+		$absolute = "{$_SERVER['DOCUMENT_ROOT']}{$relative}";
+
+		$mkdir = @mkdir($absolute, 0755, true);
+
+		return [
+			"protocol"	=> "http",
+			"domain"	=> "a.b.com",
+			"relative"	=> $relative,
+			"absolute"	=> $absolute,
+			"mkdir"		=> $mkdir,
+		];
+	}
+
+	/**
+	 * $g_tools->getFileName( [$mb_id, $goods_or_id, $fl_no], $paths['absolute'] );
+	 *   mb_id_01_604291659841_1492095_9ZYh
+	 * $g_tools->getFileName( [$mb_id, $goods_or_id, $fl_no] );
+	 *   mb_id_01_604291659841_1492095
+	 * $g_tools->getFileName( [], $paths['absolute'] );
+	 *   img_9ZYh
+	 * $g_tools->getFileName();
+	 *   img
+	 */
+	public function getFileName( $name_arr = [], $path = "" ) {
+		$name_arr = $name_arr  ?:  [];
+
+		foreach ( $name_arr as $k1 => $v1 ) {
+			if ( !$v1 ) { unset( $name_arr[$k1] ); continue; }
+			$name_arr[$k1] = str_replace("/", "_", $v1)  ?:  "";
+		}
+
+		$file_new = implode('_', $name_arr)  ?:  "img";
+
+		if ( empty( $path ) ) {
+			return [ "file_new" => $file_new ];	# code 없이 강제 덮어쓰기
+		}
+
+		# add _code {
+		$file_uniq = $this->getFileNameUniqueCode( $path, $file_new );
+		return [
+			"file_new"  => $file_uniq['file_code'],
+			"file_uniq" => $file_uniq
+		];
+		# add _code }
+
+		/*
 		# add _num {
-		$index_arr = $this->getIndexContinue( $absolute, $img_name );
+		$index_arr = $this->getIndexContinue( $path, $file_new );
 
-		$index_last = $index_arr['index_continue'];
+		$index_last = (int)$index_arr['index_continue'];
 		$num = $index_last < 1000  ? sprintf( '%03d', $index_last )  : $index_last;
 		return [
-			"img_name" => "{$img_name}_{$num}",
+			"file_new"  => $file_new  ? "{$file_new}_{$num}"  : $num,
 			"index_arr" => $index_arr
 		];
 		# add _num }
+		*/
 	}
 
-	public function getIndexContinue( $dir, $img_name, $tail = ".jpg" ) {
-		if ( empty( $dir ) || empty( $img_name ) ) { return; }
+	public function getFileNameUniqueCode( $path, $file_new = "" ) {
+		$path_file = "{$path}/{$file_new}";
+
+		if ( !$path ) {
+			$code_unique = $this->getRandStr(4);
+		} else {
+			for ( $i = 0; $i < 10; $i ++ ) {
+				$code_unique_arr[]	= $code_unique	= $this->getRandStr(4);
+				$file_pattern_arr[]	= $file_pattern	= $file_new  ? "{$path_file}_{$code_unique}*"  : "{$path_file}*{$code_unique}*";
+				$file_glob_arr[]	= $file_glob	= glob( $file_pattern );
+				$file_exist = false;
+				foreach ( $file_glob as $v2 ) {
+					$file_exist = is_file( $v2 );	# file 만 검사
+					if ( $file_exist ) { break; }
+				}
+				$file_exist_arr[]	= $file_exist;
+				if ( $file_exist ) { continue; }	# 동명 파일 존재시 다른 code 시도
+				break;								# 동명 파일 없을시 해당 code 사용
+			}
+		}
+
+		$file_code = $file_new == ""  ? $code_unique  : "{$file_new}_{$code_unique}";
+
+		return [
+			"file_code"			=> $file_code,
+			"code_unique"		=> $code_unique,
+			"code_unique_arr"	=> $code_unique_arr,	# for debug
+			"file_pattern_arr"	=> $file_pattern_arr,	# for debug
+			"file_glob_arr"		=> $file_glob_arr,		# for debug
+			"file_exist_arr"	=> $file_exist_arr,		# for debug
+		];
+	}
+
+	public function getRandStr( $length = 4 ) {
+		// $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';	# 62 ^ 4 = 14,776,336
+		$characters = '23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';			# 56 ^ 4 =  9,834,496
+
+		$charactersLength = strlen($characters);
+		$randomString = '';
+		for( $i = 0; $i < $length; $i ++ ){
+			$randomString .= $characters[ rand(0, $charactersLength - 1) ];
+		}
+		// return "abcd";	# for debug
+		return $randomString;
+	}
+
+	public function getIndexContinue( $path, $file_new = "" ) {
+		if ( empty( $path ) ) { return; }
 
 		// 핸들 획득
-		$handle  = opendir($dir);
+		$handle  = opendir($path);
 
 		$file_arr = array();
-		while (false !== ($filename = readdir($handle))) {
-			if($filename == "." || $filename == ".."){ continue; }
-			if( stripos( $filename, $img_name ) === false ){ continue; }
-			if ( is_file( "{$dir}/{$filename}" ) ){
-				$file_arr[] = $filename;
-			}
+		while (false !== ($file_ori = readdir($handle))) {
+			if($file_ori == "." || $file_ori == ".."){ continue; }
+			if( $file_new && stripos( $file_ori, $file_new ) === false ){ continue; }
+			if( !is_file( "{$path}/{$file_ori}" ) ){ continue; }
+			$file_arr[] = $file_ori;
 		}
 
 		// 핸들 해제
 		closedir($handle);
-		
+
 		// 정렬, 역순으로 정렬하려면 rsort 사용
 		// sort($file_arr);
 
-		$img_index_arr = array();
-		foreach ( $file_arr as $k1 => $filename ) {
-			$filename = str_replace( "{$img_name}_", "", $filename );
-			$filename = str_replace( $tail, "", $filename );
-			$img_index_arr[] = (int)$filename;
+		// $file_index_arr = array();
+		foreach ( $file_arr as $k1 => $file_ori ) {
+			if ( !$file_new ) {
+				preg_match('/[0-9]+[\.]/', $file_ori, $matches);	# 001.jpg -> 001.
+				$matches_arr[] = mb_substr( $matches[0], 0, strlen($matches[0]) - 1, "utf-8" );
+			} else {
+				$file_ori = str_replace( $file_new, "", $file_ori );	# mb_id_01_123456789012_1234567_001.jpg -> _001.jpg / _123456789012_1234567_001.jpg
+				preg_match('/[\_][0-9]+[\.]/', $file_ori, $matches);	# _001.jpg / _123456789012_1234567_001.jpg -> _001.
+				$matches_arr[] = mb_substr( $matches[0], 1, strlen($matches[0]) - 2, "utf-8" );
+			}
+			// $file_ori = preg_replace( '/\..+$/', '', $file_ori ) ?:  $file_ori;		# 확장자 제거
+			// $file_index_arr[] = (int)$file_ori;
 		}
 
-		$index_continue = 1 + max( $img_index_arr );
+		$index_continue = 1 + max( $matches_arr );
 
 		return [
-			"file_arr" => $file_arr,
-			"img_index_arr" => $img_index_arr,
 			"index_continue" => $index_continue,
+			"file_arr" => $file_arr,
+			"matches_arr" => $matches_arr
 		];
 	}
 
@@ -272,6 +414,47 @@ class GTools {
 		}
 
 		return [ "ext" => $ext, "img_str" => $img_str, "is_img" => $is_img ];
+	}
+
+	/**
+	 * $sql_btw = $g_tools->getSqlBetween();
+	 * $sql_btw = $g_tools->getSqlBetween("d");
+	 * $sql_btw = $g_tools->getSqlBetween("H", "2024-01-05 13:51:45");
+	 */
+	public function getSqlBetween( $unit="d", $date_str="" ) {
+		$ret = [];
+		$date_str = $date_str  ?:  date('Y-m-d H:i:s');
+
+		$map = [
+			"Y" => [ "delta" => "+1 years",		"format" => "Y",		"date_s1_add" => "-01" ],
+			"m" => [ "delta" => "+1 months",	"format" => "Y-m", ],
+			"d" => [ "delta" => "+1 days",		"format" => "Y-m-d", ],
+			"H" => [ "delta" => "+1 hours",		"format" => "Y-m-d H",	"date_s1_add" => ":00" ],
+			"i" => [ "delta" => "+1 minutes",	"format" => "Y-m-d H:i", ],
+		];
+		$delta			= $map[ $unit ]['delta']		?:  "+1 days";
+		$format			= $map[ $unit ]['format']		?:  "Y-m-d";
+		$date_s1_add	= $map[ $unit ]['date_s1_add']	?:  "";
+
+		$timestamp_s1 = strtotime( $date_str );
+		$date_s1 = date( $format, $timestamp_s1 );
+		$date_s1 .= $date_s1_add;
+		$timestamp_s2 = strtotime( $date_s1 );
+		$date_s2 = date( "Y-m-d H:i:s", $timestamp_s2 );
+		$timestamp_e1 = strtotime( $delta, $timestamp_s2 ) - 1;
+		$date_e1 = date( "Y-m-d H:i:s", $timestamp_e1 );
+
+
+		// $ret['debug']['param']['date_str'] = $date_str;
+		// $ret['debug']['param']['unit'] = $unit;
+		// $ret['debug']['param']['now'] = date( 'Y-m-d H:i:s' );
+		// $ret['debug']['delta']  = $delta;
+		// $ret['debug']['format'] = $format;
+		// $ret['debug']['date_s1'] = $date_s1;
+		$ret['start'] = $date_s2;
+		$ret['end']   = $date_e1;
+
+		return $ret;
 	}
 
 

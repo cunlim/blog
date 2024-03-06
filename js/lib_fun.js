@@ -1,14 +1,35 @@
+
+
+// like php $_GET
+let js_GET = {};
+initJs_GET();
+function initJs_GET() {
+	for(var [k1, v1] of new URLSearchParams( new URL(location).search ).entries()) {
+		js_GET[k1] = v1;
+	}
+}
+
+
+
 class Tools {
 
 	debug_flag = false;	// true 디버깅, false 노 디버깅
 	constructor() {}
 
+	/**
+	 * php sleep 함수와 같은 기능
+	 * @param {int} time 
+	 * @returns void
+	 * 
+	 * 예시 :
+	 * fn();
+	 * async function fn() {
+	 *     console.log("one");
+	 *     await tools.delayer( 2000 );
+	 *     console.log("two");
+	 * }
+	 */
 	delayer = (time) => new Promise( (resolve)=>setTimeout( ()=>resolve(), time ) );
-	// fn();
-	// async function fn() {
-	// 	await tools.delayer( 2000 );
-	// 	console.log(12);
-	// }
 
 	// tools.timeInit();
 	// tools.timeInit('ajax');
@@ -230,28 +251,35 @@ class Tools {
 	}
 
 
-	// await this.fetchGet( "/lim/lab/ajax_simulator.php", { market : "coupang" } ).then(response => response.json()).then(resp_data => {
+	// await tools.fetchGet( "/lim/lab/ajax_simulator.php", { market : "COUPANG" } ).then(response => response.json()).then(resp_data => {
 	// 	if ( resp_data?.status !== 1 ) { return; }
 	// })
 	fetchGet = function ( url_path, param_obj ) {
 		let params_str = new URLSearchParams(param_obj).toString();
 		if ( params_str ) { params_str = `?${params_str}` }
-		return fetch( `${url_path}${params_str}` ).catch(error => console.log(error));
+		return fetch( `${url_path}${params_str}` ).catch(error => { console.log(error); return Promise.reject(); });
 	}
 
-	// await this.fetchPost( "/lim/lab/ajax_simulator.php", { market : "coupang" } ).then(response => response.json()).then(resp_data => {
-	// 	if ( resp_data?.status !== 1 ) { return; }
+	// tools.fetchPost( "/lim/lab/ajax_simulator.php", { market : "COUPANG" } )										// $file_input
+	// tools.fetchPost( "/lim/lab/ajax_simulator.php", { market : "COUPANG" }, "urlencoded" )						// $_POST(1 depth)
+	// tools.fetchPost( "/lim/lab/ajax_simulator.php", new FormData().append("market", "COUPANG"), "form_data" )	// $_POST
+	// tools.fetchPost( "/lim/lab/ajax_simulator.php", new FormData(jq_form[0]), "form_data" )						// $_POST, $_FILES
+	// .then(response => response.json()).then(resp_data => {
+	//     if ( resp_data?.status !== 1 ) { return; }
 	// })
-	fetchPost = function ( url_path, param_obj, mode = "json" ) {
+	fetchPost = function ( url_path, data, mode = "json" ) {
 		const post_conf = {"method": "POST"};
 		if ( mode === "json" ) {
 			post_conf.headers = {"content-type": "application/json"};
-			post_conf.body = JSON.stringify( param_obj );
-		} else {
+			post_conf.body = JSON.stringify( data );	// {}
+		} else if ( mode === "urlencoded" ) {
 			post_conf.headers = {"content-type": "application/x-www-form-urlencoded"};
-			post_conf.body = new URLSearchParams( param_obj ).toString();
+			post_conf.body = new URLSearchParams( data ).toString();	// {}
+		} else {
+			// post_conf.headers = {"content-type": "multipart/form-data; boundary=----"};
+			post_conf.body = data;	// new FormData(el_form)
 		}
-		return fetch( url_path, post_conf ).catch(error => console.log(error));
+		return fetch( url_path, post_conf ).catch(error => { console.log(error); return Promise.reject(); });
 	}
 
 	// 로그인 페이지로 이동, 로그인 즉시 전 페이지로 이동
@@ -341,6 +369,74 @@ class Tools {
 }
 let tools = new Tools("John");
 // tools.debug_flag = true;
+
+
+
+
+
+
+
+const vue_component = {
+
+	/**
+	 * <comp_pg
+	 * 	:page="14"
+	 * 	:page_cnt_total="487"
+	 * 	:page_start="11"
+	 * 	:page_end="20"
+	 * 	:pageto="vue_method.pageTo"
+	 * ></comp_pg>
+	 */
+	pg : {
+		name: 'pg',
+		props: ['page_cnt_total', 'page_start', 'page_end', 'page', 'pageto'],
+		template: /*html*/`
+			<div class="paging-wrap" v-if="page_cnt_total > 1" v-cloak>
+				<nav class="pg_wrap">
+					<span class="pg">
+						<a href="javascript:;" @click="pageto(1)" v-if="page > 1" class="pg_page pg_start">처음</a>
+						<a href="javascript:;" @click="pageto( page_start - 1 )" v-if="page_start > 1" class="pg_page pg_prev">이전</a>
+						<template v-for="(i, n) in page_end - page_start + 1">
+							<strong v-if="n === page - page_start" class="pg_current"><span class="sound_only">열린</span>{{page_start + n}}<span class="sound_only">페이지</span></strong>
+							<a href="javascript:;" @click="pageto( page_start + n )" v-else="" class="pg_page">{{page_start + n}}<span class="sound_only">페이지</span></a>
+						</template>
+						<a href="javascript:;" @click="pageto( page_end + 1 )" v-if="page_end < page_cnt_total" class="pg_page pg_next">다음</a>
+						<a href="javascript:;" @click="pageto( page_cnt_total )" v-if="page < page_cnt_total" class="pg_page pg_end">맨끝</a>
+					</span>
+				</nav>
+				<div class="clr"></div>
+			</div>
+		`
+	},
+
+	/**
+	 * <ldio_01 :ldio_text="vue_data.conf.ldio_text"></ldio_01>
+	 * ldio_text = "some text" / undefined
+	 */
+	ldio_01 : {
+		name: 'ldio_01',
+		props: ['ldio_text'],
+		template: /*html*/`
+			<div class="full-screen-wrap" v-show="ldio_text !== undefined">
+				<div class="contents-wrap">
+					<div class="loadingio-spinner-wedges-4gilftv1pz1">
+						<div class="ldio-hhnfgr120pp">
+							<div>
+								<div><div></div></div>
+								<div><div></div></div>
+								<div><div></div></div>
+								<div><div></div></div>
+							</div>
+						</div>
+					</div>
+					<h3 v-html="ldio_text"></h3>
+				</div>
+			</div>
+		`
+	},
+
+};
+
 
 
 
